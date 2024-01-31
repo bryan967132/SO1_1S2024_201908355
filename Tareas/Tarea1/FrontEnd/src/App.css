@@ -1,0 +1,14 @@
+.container {
+  display: flex;
+  flex-direction: column; /* Mostrar los elementos en columna */
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Establece la altura al 100% del viewport */
+}
+
+.centered-button {
+  /* Estilos para el botón */
+  padding: 10px 20px;
+  font-size: 16px;
+  margin-bottom: 10px; /* Espacio entre el botón y el texto */
+}
