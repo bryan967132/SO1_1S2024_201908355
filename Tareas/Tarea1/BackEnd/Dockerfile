@@ -1,4 +1,4 @@
-FROM golang:alpine AS builder
+FROM golang:latest AS builder
 WORKDIR /tarea1Back
 COPY . .
 RUN go build -o Main .
