@@ -1,6 +1,6 @@
 # Tarea 1
 
-![Video Explicativo](https://youtu.be/ZWAJQCKuhoE)
+[Video Explicativo](https://www.youtube.com/watch?v=ZWAJQCKuhoE)
 
 ![Img1](Tarea1/Images/Img1.jpeg)
 
