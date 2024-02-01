@@ -2,14 +2,14 @@
 
 ![Video Explicativo](https://youtu.be/ZWAJQCKuhoE)
 
-![Img1](Images/Img1.jpeg)
+![Img1](Tarea1/Images/Img1.jpeg)
 
-![Img2](Images/Img2.jpeg)
+![Img2](Tarea1/Images/Img2.jpeg)
 
-![Img3](Images/Img3.jpeg)
+![Img3](Tarea1/Images/Img3.jpeg)
 
-![Img4](Images/Img4.jpeg)
+![Img4](Tarea1/Images/Img4.jpeg)
 
-![Img5](Images/Img5.jpeg)
+![Img5](Tarea1/Images/Img5.jpeg)
 
-![Img6](Images/Img6.jpeg)
+![Img6](Tarea1/Images/Img6.jpeg)
