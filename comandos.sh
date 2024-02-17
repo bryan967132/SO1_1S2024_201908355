@@ -12,3 +12,9 @@ docker run -d -p 3000:3000 front_t1
 docker ps
 # DETENER EJECUCIÓN DE CONTENEDOR
 docker stop <ID_CONTENEDOR>
+
+# HT1
+# AGREGAR EL MÓDULO
+sudo insmod ram.ko
+# ELIMINAR MÓDULO
+sudo rmmod ram.ko

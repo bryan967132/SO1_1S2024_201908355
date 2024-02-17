@@ -1,0 +1,1 @@
+savedcmd_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/HojasTrabajo/HT1/Module/ram.mod := printf '%s\n'   ram.o | awk '!x[$$0]++ { print("/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/HojasTrabajo/HT1/Module/"$$0) }' > /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/HojasTrabajo/HT1/Module/ram.mod
