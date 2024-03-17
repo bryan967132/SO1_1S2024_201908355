@@ -11,8 +11,10 @@ func main() {
 	app := fiber.New()
 	app.Use(cors.New())
 
-	ctrl := &controller.Controller{}
+	ctrl := controller.NewController()
 	app.Get("/", ctrl.Running)
-	app.Get("/cpuramproc", ctrl.Cpuram)
+	app.Get("/cpuram", ctrl.Cpuram)
+	app.Post("/inscpuram", ctrl.InsRAMCPU)
+	app.Get("/history", ctrl.History)
 	app.Listen(":8000")
 }
