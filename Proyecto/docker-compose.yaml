@@ -1,0 +1,54 @@
+version: '3.1'
+services:
+  db:
+    image: mysql
+    container_name: MYSQL
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlpass
+      MYSQL_DATABASE: P1SO1
+    volumes:
+      - ./schemas:/var/lib/mysql
+    networks:
+      - red1
+  backend:
+    build:
+      context: ./BackEnd
+    image: back_p1
+    container_name: API_P1
+    depends_on:
+      - db
+    environment:
+      DB_USER: root
+      DB_PASSWORD: mysqlpass
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: P1SO1
+    privileged: true
+    pid: host
+    restart: always
+    volumes:
+      - /proc:/proc
+    ports:
+      - "8000:8000"
+    networks:
+      - red1
+  frontend:
+    build:
+      context: ./FrontEnd
+    image: front_p1
+    container_name: ITRFC_P1
+    depends_on:
+      - backend
+    restart: always
+    ports:
+      - "80:80"
+    networks:
+      - red1
+networks:
+  red1:
+    driver: bridge
+volumes:
+  schemas:
