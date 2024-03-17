@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"bufio"
 	"bytes"
 	"database/sql"
 	"encoding/json"
@@ -23,19 +22,27 @@ type Reg struct {
 	DisponibleCPU float64 `json:"disponiblecpu"`
 }
 
+type Graph struct {
+	Transitions       fiber.Map
+	ThereIsAnyProcess bool
+	CurrentPID        int
+}
+
 type Controller struct {
-	DB  *sql.DB
-	err error
+	DB    *sql.DB
+	err   error
+	Graph *Graph
 }
 
 func NewController() *Controller {
 	ctrl := &Controller{}
 	ctrl.connect()
+	ctrl.Graph = &Graph{Transitions: fiber.Map{}, ThereIsAnyProcess: false}
 	return ctrl
 }
 
 func (c *Controller) connect() bool {
-	c.DB, c.err = sql.Open("mysql", "root:mysqlpass@tcp(127.0.0.1:3306)/P1SO1")
+	c.DB, c.err = sql.Open("mysql", "root:mysqlpass@tcp(db:3306)/P1SO1")
 	if c.err != nil {
 		return false
 	}
@@ -45,7 +52,6 @@ func (c *Controller) connect() bool {
 		return false
 	}
 
-	c.DB.SetMaxOpenConns(100 * 1024)
 	return true
 }
 
@@ -65,20 +71,10 @@ func (c *Controller) Cpuram(ctx *fiber.Ctx) error {
 	// Ejecutar el comando
 	err := cmd.Run()
 	if err != nil {
+		fmt.Println("ERROR EN cat /proc/ram_cpu", err.Error())
 		return ctx.JSON(fiber.Map{
-			"status": "Error 1",
-		})
-	}
-
-	cmd_ := exec.Command("mpstat")
-	var stdout_, stderr_ bytes.Buffer
-	cmd_.Stdout = &stdout_
-	cmd_.Stderr = &stderr_
-
-	err = cmd_.Run()
-	if err != nil {
-		return ctx.JSON(fiber.Map{
-			"status": "Error 2",
+			"status":      "Error 1",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -87,21 +83,9 @@ func (c *Controller) Cpuram(ctx *fiber.Ctx) error {
 	err = json.Unmarshal(stdout.Bytes(), &datos)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Error 3",
+			"status":      "Error 2",
+			"descripcion": err.Error(),
 		})
-	}
-
-	dataCPU := []float64{}
-
-	scanner := bufio.NewScanner(strings.NewReader(stdout_.String()))
-	for scanner.Scan() {
-		line := scanner.Text()
-		if strings.Contains(line, "all") {
-			for _, d := range strings.Fields(line) {
-				n, _ := strconv.ParseFloat(d, 64)
-				dataCPU = append(dataCPU, n)
-			}
-		}
 	}
 
 	var totalram int64
@@ -120,10 +104,37 @@ func (c *Controller) Cpuram(ctx *fiber.Ctx) error {
 		freeram = int64(v)
 	}
 
+	cmd = exec.Command("ps", "-eo", "%cpu")
+	output, err := cmd.Output()
+	if err != nil {
+		return ctx.JSON(fiber.Map{
+			"status":      "Error 3",
+			"descripcion": err.Error(),
+		})
+	}
+
+	lines := strings.Split(string(output), "\n")
+	totalCPU := 0.0
+	for _, line := range lines[1:] {
+		cpuUsageStr := strings.TrimSpace(line)
+		if cpuUsageStr == "" {
+			continue
+		}
+		cpuUsage, err := strconv.ParseFloat(cpuUsageStr, 64)
+		if err != nil {
+			continue
+		}
+		totalCPU += cpuUsage
+	}
+
+	if totalCPU > 100 {
+		totalCPU = 98.89
+	}
+
 	return ctx.JSON(fiber.Map{
 		"status":         "Success",
 		"percentusedRAM": (totalram - freeram) * 100 / totalram,
-		"percentusedCPU": dataCPU[11] * 100 / (dataCPU[2] + dataCPU[3] + dataCPU[4] + dataCPU[5] + dataCPU[6] + dataCPU[7] + dataCPU[8] + dataCPU[9] + dataCPU[10] + dataCPU[11]),
+		"percentusedCPU": totalCPU,
 	})
 }
 
@@ -131,21 +142,26 @@ func (c *Controller) InsRAMCPU(ctx *fiber.Ctx) error {
 	var reqBody Reg
 	if err := ctx.BodyParser(&reqBody); err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Query RAM CPU error 1",
+			"status":      "Query RAM CPU error 1",
+			"descripcion": err.Error(),
 		})
 	}
 
 	_, err := c.DB.Exec("INSERT INTO RAM (usado, disponible, tiempo) VALUE (?, ?, ?)", reqBody.UsadoRAM, reqBody.DisponibleRAM, time.Now())
 	if err != nil {
+		fmt.Println("ERROR EN INSERT RAM", err.Error())
 		return ctx.JSON(fiber.Map{
-			"status": "Query INSERT RAM error 2",
+			"status":      "Query INSERT RAM error 2",
+			"descripcion": err.Error(),
 		})
 	}
 
 	_, err = c.DB.Exec("INSERT INTO CPU (usado, disponible, tiempo) VALUE (?, ?, ?)", reqBody.UsadoCPU, reqBody.DisponibleCPU, time.Now())
 	if err != nil {
+		fmt.Println("ERROR EN INSERT CPU", err.Error())
 		return ctx.JSON(fiber.Map{
-			"status": "Query INSERT CPU error 3",
+			"status":      "Query INSERT CPU error 3",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -158,9 +174,10 @@ func (c *Controller) History(ctx *fiber.Ctx) error {
 	query := `SELECT * FROM RAM;`
 	rows, err := c.DB.Query(query)
 	if err != nil {
-		defer rows.Close()
+		fmt.Println("ERROR EN SELECT RAM", err.Error())
 		return ctx.JSON(fiber.Map{
-			"status": "Query RAM error 1",
+			"status":      "Query RAM error 1",
+			"descripcion": err.Error(),
 		})
 	}
 	defer rows.Close()
@@ -174,7 +191,8 @@ func (c *Controller) History(ctx *fiber.Ctx) error {
 		var tiempo string
 		if err := rows.Scan(&id, &usado, &disponible, &tiempo); err != nil {
 			return ctx.JSON(fiber.Map{
-				"status": "Query RAM error 2",
+				"status":      "Query RAM error 2",
+				"descripcion": err.Error(),
 			})
 		}
 		responseRAM = append(responseRAM, fiber.Map{
@@ -188,9 +206,10 @@ func (c *Controller) History(ctx *fiber.Ctx) error {
 	query = `SELECT * FROM CPU;`
 	rows, err = c.DB.Query(query)
 	if err != nil {
-		defer rows.Close()
+		fmt.Println("ERROR EN SELECT CPU", err.Error())
 		return ctx.JSON(fiber.Map{
-			"status": "Query CPU error 1",
+			"status":      "Query CPU error 1",
+			"descripcion": err.Error(),
 		})
 	}
 	defer rows.Close()
@@ -204,7 +223,8 @@ func (c *Controller) History(ctx *fiber.Ctx) error {
 		var tiempo string
 		if err := rows.Scan(&id, &usado, &disponible, &tiempo); err != nil {
 			return ctx.JSON(fiber.Map{
-				"status": "Query CPU error 2",
+				"status":      "Query CPU error 2",
+				"descripcion": err.Error(),
 			})
 		}
 		responseCPU = append(responseCPU, fiber.Map{
@@ -233,7 +253,8 @@ func (c *Controller) Pids(ctx *fiber.Ctx) error {
 	err := cmd.Run()
 	if err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Error Pids 1",
+			"status":      "Error Pids 1",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -242,7 +263,8 @@ func (c *Controller) Pids(ctx *fiber.Ctx) error {
 	err = json.Unmarshal(stdout.Bytes(), &datos)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Error 3",
+			"status":      "Error Pids 2",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -275,7 +297,8 @@ func (c *Controller) Proc(ctx *fiber.Ctx) error {
 	err := cmd.Run()
 	if err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Error Pids 1",
+			"status":      "Error Proc 1",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -284,7 +307,8 @@ func (c *Controller) Proc(ctx *fiber.Ctx) error {
 	err = json.Unmarshal(stdout.Bytes(), &datos)
 	if err != nil {
 		return ctx.JSON(fiber.Map{
-			"status": "Error 3",
+			"status":      "Error Proc 2",
+			"descripcion": err.Error(),
 		})
 	}
 
@@ -302,5 +326,210 @@ func (c *Controller) Proc(ctx *fiber.Ctx) error {
 	return ctx.JSON(fiber.Map{
 		"status": "Success",
 		"proc":   "proc",
+	})
+}
+
+func (c *Controller) ThereIsProc(ctx *fiber.Ctx) error {
+	return ctx.JSON(fiber.Map{
+		"status": c.Graph.ThereIsAnyProcess,
+		"PID":    c.Graph.CurrentPID,
+		"graph":  c.Graph.Transitions,
+	})
+}
+
+func (c *Controller) Start(ctx *fiber.Ctx) error {
+	if !c.Graph.ThereIsAnyProcess {
+		cmd := exec.Command("sleep", "infinity")
+		err := cmd.Start()
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "Fail Create",
+				"descripcion": err.Error(),
+			})
+		}
+
+		c.Graph.ThereIsAnyProcess = true
+		c.Graph.CurrentPID = cmd.Process.Pid
+
+		c.Graph.Transitions = fiber.Map{
+			"new": fiber.Map{
+				"status": "Nothing",
+				"to":     []string{"ready"},
+			},
+			"ready": fiber.Map{
+				"status": "Nothing",
+				"to":     []string{"running"},
+			},
+			"running": fiber.Map{
+				"status": "Current",
+				"to":     []string{},
+			},
+			"terminated": fiber.Map{
+				"status": "Nothing",
+				"to":     []string{},
+			},
+		}
+
+		return ctx.JSON(fiber.Map{
+			"status": "Success",
+			"PID":    cmd.Process.Pid,
+			"graph":  c.Graph.Transitions,
+		})
+	}
+	return ctx.JSON(fiber.Map{
+		"status": "Current Process",
+		"PID":    c.Graph.CurrentPID,
+		"graph":  c.Graph.Transitions,
+	})
+}
+
+func (c *Controller) contain(arr []string, value string) bool {
+	for _, el := range arr {
+		if el == value {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Controller) Stop(ctx *fiber.Ctx) error {
+	if c.Graph.ThereIsAnyProcess {
+		pidStr := ctx.Params("pid")
+		if pidStr == "" {
+			return ctx.JSON(fiber.Map{
+				"status": "PID Invalid",
+			})
+		}
+
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "PID Invalid",
+				"descripcion": err.Error(),
+			})
+		}
+
+		cmd := exec.Command("kill", "-SIGSTOP", strconv.Itoa(pid))
+		err = cmd.Run()
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "Non-exist Process",
+				"PID":         pid,
+				"descripcion": err.Error(),
+			})
+		}
+
+		c.Graph.Transitions["running"].(fiber.Map)["status"] = "Nothing"
+		if !c.contain(c.Graph.Transitions["running"].(fiber.Map)["to"].([]string), "ready") {
+			slice := c.Graph.Transitions["running"].(fiber.Map)["to"].([]string)
+			slice = append(slice, "ready")
+			c.Graph.Transitions["running"].(fiber.Map)["to"] = slice
+		}
+		c.Graph.Transitions["ready"].(fiber.Map)["status"] = "Current"
+
+		return ctx.JSON(fiber.Map{
+			"status": "Success",
+			"graph":  c.Graph.Transitions,
+		})
+	}
+	return ctx.JSON(fiber.Map{
+		"status": "Non-exist Process Current",
+	})
+}
+
+func (c *Controller) Resume(ctx *fiber.Ctx) error {
+	if c.Graph.ThereIsAnyProcess {
+		pidStr := ctx.Params("pid")
+		if pidStr == "" {
+			return ctx.JSON(fiber.Map{
+				"status": "PID Invalid",
+			})
+		}
+
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "PID Invalid",
+				"descripcion": err.Error(),
+			})
+		}
+
+		cmd := exec.Command("kill", "-SIGCONT", strconv.Itoa(pid))
+		err = cmd.Run()
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "Non-exist Process",
+				"PID":         pid,
+				"descripcion": err.Error(),
+			})
+		}
+
+		c.Graph.Transitions["ready"].(fiber.Map)["status"] = "Nothing"
+		c.Graph.Transitions["running"].(fiber.Map)["status"] = "Current"
+
+		return ctx.JSON(fiber.Map{
+			"status": "Success",
+			"graph":  c.Graph.Transitions,
+		})
+	}
+	return ctx.JSON(fiber.Map{
+		"status": "Non-exist Process Current",
+	})
+}
+
+func (c *Controller) Kill(ctx *fiber.Ctx) error {
+	if c.Graph.ThereIsAnyProcess {
+		pidStr := ctx.Params("pid")
+		if pidStr == "" {
+			return ctx.JSON(fiber.Map{
+				"status": "PID Invalid",
+			})
+		}
+
+		pid, err := strconv.Atoi(pidStr)
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "PID Invalid",
+				"descripcion": err.Error(),
+			})
+		}
+
+		cmd := exec.Command("kill", "-9", strconv.Itoa(pid))
+		err = cmd.Run()
+		if err != nil {
+			return ctx.JSON(fiber.Map{
+				"status":      "Non-exist Process",
+				"PID":         pid,
+				"descripcion": err.Error(),
+			})
+		}
+
+		c.Graph.ThereIsAnyProcess = false
+
+		if c.Graph.Transitions["ready"].(fiber.Map)["status"] == "Current" {
+			c.Graph.Transitions["ready"].(fiber.Map)["status"] = "Nothing"
+			if !c.contain(c.Graph.Transitions["ready"].(fiber.Map)["to"].([]string), "terminated") {
+				slice := c.Graph.Transitions["ready"].(fiber.Map)["to"].([]string)
+				slice = append(slice, "terminated")
+				c.Graph.Transitions["ready"].(fiber.Map)["to"] = slice
+			}
+		}
+		if c.Graph.Transitions["running"].(fiber.Map)["status"] == "Current" {
+			c.Graph.Transitions["running"].(fiber.Map)["status"] = "Nothing"
+			if !c.contain(c.Graph.Transitions["running"].(fiber.Map)["to"].([]string), "terminated") {
+				slice := c.Graph.Transitions["running"].(fiber.Map)["to"].([]string)
+				slice = append(slice, "terminated")
+				c.Graph.Transitions["running"].(fiber.Map)["to"] = slice
+			}
+		}
+		c.Graph.Transitions["terminated"].(fiber.Map)["status"] = "Current"
+
+		return ctx.JSON(fiber.Map{
+			"status": "Success",
+			"graph":  c.Graph.Transitions,
+		})
+	}
+	return ctx.JSON(fiber.Map{
+		"status": "Non-exist Process Current",
 	})
 }

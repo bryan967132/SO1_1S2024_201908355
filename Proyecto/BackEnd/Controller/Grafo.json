@@ -1,0 +1,18 @@
+{
+    "new": {
+        "status": "Nothing",
+        "to": ["ready"]
+    },
+    "ready": {
+        "status": "Nothing",
+        "to": ["running"]
+    },
+    "running": {
+        "status": "Current",
+        "to": []
+    },
+    "terminated": {
+        "status": "Nothing",
+        "to": []
+    }
+}

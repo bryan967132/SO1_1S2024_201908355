@@ -18,5 +18,10 @@ func main() {
 	app.Get("/history", ctrl.History)
 	app.Get("/pids", ctrl.Pids)
 	app.Get("/proc/:pid", ctrl.Proc)
+	app.Get("/thereisproc", ctrl.ThereIsProc)
+	app.Get("/start", ctrl.Start)
+	app.Get("/stop/:pid", ctrl.Stop)
+	app.Get("/resume/:pid", ctrl.Resume)
+	app.Get("/kill/:pid", ctrl.Kill)
 	app.Listen(":8000")
 }
