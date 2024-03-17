@@ -32,7 +32,7 @@ services:
     volumes:
       - /proc:/proc
     ports:
-      - "8000:8000"
+      - 8000:8000
     networks:
       - red1
   frontend:
@@ -44,7 +44,7 @@ services:
       - backend
     restart: always
     ports:
-      - "80:80"
+      - 80:80
     networks:
       - red1
 networks:
