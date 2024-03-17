@@ -14,8 +14,6 @@ services:
     networks:
       - red1
   backend:
-    build:
-      context: ./BackEnd
     image: dannyt8355/backend
     container_name: backend
     depends_on:
@@ -40,8 +38,6 @@ services:
     networks:
       - red1
   frontend:
-    build:
-      context: ./FrontEnd
     image: dannyt8355/frontend
     container_name: frontend
     depends_on:
