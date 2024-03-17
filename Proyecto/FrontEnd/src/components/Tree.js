@@ -1,21 +1,18 @@
-import React from "react";
-import Tree from 'react-d3-tree';
-import './custom-tree.css'
+import React, { useEffect } from 'react';
+import * as d3Graphviz from 'd3-graphviz';
 
-export default function App({data}) {
+export default function App({dotCode}) {
+    useEffect(() => {
+        d3Graphviz.graphviz("#graphProcess")
+            .scale(0.5)
+            .width(document.getElementById('graphProcess').clientWidth)
+            .height(1000)
+            .renderDot(dotCode)
+    }, [dotCode]);
+
     return (
-        <div id="treeWrapper" style={{ height: '40em' }}>
-            <Tree
-                data={data}
-                separation={{
-                    siblings: 2, // Separación entre nodos hermanos
-                    nonSiblings: 2 // Separación entre nodos no hermanos
-                }}
-                rootNodeClassName="node__root"
-                branchNodeClassName="node__branch"
-                leafNodeClassName="node__leaf"
-                orientation="vertical"
-            />
+        <div>
+            <div id="graphProcess"></div>
         </div>
-    )
+    );
 }
