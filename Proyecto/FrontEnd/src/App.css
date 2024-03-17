@@ -1,0 +1,42 @@
+/* src/App.css */
+.App {
+    text-align: center;
+    margin-top: 50px;
+}
+
+.titles2 {
+    margin-top: 10%;
+}
+
+.chart-container {
+    width: 400px;
+    height: 400px;
+    display: inline-block;
+    margin: 20px;
+}
+
+.custom-button {
+    border-radius: 5px;
+    background-color: rgba(54, 162, 235, 1);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.chart-row {
+    display: grid;
+    grid-template-rows: repeat(2, 1fr);
+    column-gap: 0px;
+}
+
+.chart-container-line {
+    margin: 0 10%;
+    width: 80%;
+    text-align: center;
+}
+
+.chart-container-tree {
+    margin: 0 10%;
+    text-align: center;
+}
