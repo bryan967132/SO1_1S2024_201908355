@@ -13,5 +13,6 @@ func main() {
 
 	ctrl := &controller.Controller{}
 	app.Get("/", ctrl.Running)
+	app.Get("/cpuramproc", ctrl.Cpuram)
 	app.Listen(":8000")
 }
