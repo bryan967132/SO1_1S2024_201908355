@@ -369,11 +369,13 @@ deps_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/m.mod.o := \
   include/linux/string.h \
     $(wildcard include/config/BINARY_PRINTF) \
     $(wildcard include/config/FORTIFY_SOURCE) \
-  include/linux/errno.h \
-  include/uapi/linux/errno.h \
+  include/linux/err.h \
   arch/x86/include/generated/uapi/asm/errno.h \
   include/uapi/asm-generic/errno.h \
   include/uapi/asm-generic/errno-base.h \
+  include/linux/errno.h \
+  include/uapi/linux/errno.h \
+  include/linux/overflow.h \
   include/uapi/linux/string.h \
   include/linux/fortify-string.h \
   include/linux/atomic.h \
@@ -422,7 +424,6 @@ deps_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/m.mod.o := \
   arch/x86/include/asm/vdso/processor.h \
   include/linux/personality.h \
   include/uapi/linux/personality.h \
-  include/linux/err.h \
   arch/x86/include/asm/tsc.h \
   arch/x86/include/asm/cpufeature.h \
   include/vdso/time32.h \

@@ -39,7 +39,7 @@ __used __section("__versions") = {
 	{ 0x944375db, "_totalram_pages" },
 	{ 0x15ba50a6, "jiffies" },
 	{ 0x37befc70, "jiffies_to_msecs" },
-	{ 0xcae33d98, "init_task" },
+	{ 0x533ff826, "init_task" },
 	{ 0x40c7247c, "si_meminfo" },
 	{ 0x73f5cdba, "seq_printf" },
 	{ 0xd7791eaf, "remove_proc_entry" },
@@ -54,4 +54,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "EB1983761CBEC3A96CA9C09");
+MODULE_INFO(srcversion, "8497F34234DAD1EABB0F37A");
