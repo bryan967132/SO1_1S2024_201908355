@@ -42,7 +42,7 @@ func NewController() *Controller {
 }
 
 func (c *Controller) connect() bool {
-	c.DB, c.err = sql.Open("mysql", "root:mysqlpass@tcp(db:3306)/P1SO1")
+	c.DB, c.err = sql.Open("mysql", "root:mysqlpass@tcp(mysql:3306)/P1SO1")
 	if c.err != nil {
 		return false
 	}
