@@ -1,5 +1,5 @@
 .node__root > circle {
-    fill: red;
+    fill: rgb(255, 170, 0);
 }
 
 .node__branch > circle {
