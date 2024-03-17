@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -218,5 +219,88 @@ func (c *Controller) History(ctx *fiber.Ctx) error {
 		"status": "Success",
 		"ram":    responseRAM,
 		"cpu":    responseCPU,
+	})
+}
+
+func (c *Controller) Pids(ctx *fiber.Ctx) error {
+	cmd := exec.Command("cat", "/proc/ram_cpu")
+	// Crear un buffer para capturar la salida estándar y los errores
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	// Ejecutar el comando
+	err := cmd.Run()
+	if err != nil {
+		return ctx.JSON(fiber.Map{
+			"status": "Error Pids 1",
+		})
+	}
+
+	var datos fiber.Map
+
+	err = json.Unmarshal(stdout.Bytes(), &datos)
+	if err != nil {
+		return ctx.JSON(fiber.Map{
+			"status": "Error 3",
+		})
+	}
+
+	pids := []float64{}
+
+	for _, p := range datos["processes"].([]interface{}) {
+		if convertedMap, ok := p.(map[string]interface{}); ok {
+			if v, o := fiber.Map(convertedMap)["pid"].(float64); o {
+				pids = append(pids, v)
+			}
+		}
+	}
+
+	return ctx.JSON(fiber.Map{
+		"status": "Success",
+		"pids":   pids,
+	})
+}
+
+func (c *Controller) Proc(ctx *fiber.Ctx) error {
+	pid := ctx.Params("pid")
+
+	cmd := exec.Command("cat", "/proc/ram_cpu")
+	// Crear un buffer para capturar la salida estándar y los errores
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	// Ejecutar el comando
+	err := cmd.Run()
+	if err != nil {
+		return ctx.JSON(fiber.Map{
+			"status": "Error Pids 1",
+		})
+	}
+
+	var datos fiber.Map
+
+	err = json.Unmarshal(stdout.Bytes(), &datos)
+	if err != nil {
+		return ctx.JSON(fiber.Map{
+			"status": "Error 3",
+		})
+	}
+
+	for _, p := range datos["processes"].([]interface{}) {
+		if convertedMap, ok := p.(map[string]interface{}); ok {
+			if fmt.Sprint(pid) == fmt.Sprint(fiber.Map(convertedMap)["pid"]) {
+				return ctx.JSON(fiber.Map{
+					"status": "Success",
+					"proc":   fiber.Map(convertedMap),
+				})
+			}
+		}
+	}
+
+	return ctx.JSON(fiber.Map{
+		"status": "Success",
+		"proc":   "proc",
 	})
 }

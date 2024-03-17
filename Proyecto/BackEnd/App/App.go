@@ -16,5 +16,7 @@ func main() {
 	app.Get("/cpuram", ctrl.Cpuram)
 	app.Post("/inscpuram", ctrl.InsRAMCPU)
 	app.Get("/history", ctrl.History)
+	app.Get("/pids", ctrl.Pids)
+	app.Get("/proc/:pid", ctrl.Proc)
 	app.Listen(":8000")
 }
