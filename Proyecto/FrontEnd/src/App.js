@@ -6,9 +6,7 @@ import Tree from './components/Tree'
 import State from './components/States'
 import './App.css';
 
-
 export default function App() {
-    const PROXY = '/back'
     const [chartPie, setChartPie] = useState(true);
     const [text, setText] = useState("Históricos");
 
@@ -96,7 +94,10 @@ export default function App() {
     })
 
     const getData = async () => {
-        const response = await fetch(`${PROXY}/cpuram`)
+        const response = await fetch(`cpuram`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -140,7 +141,10 @@ export default function App() {
     }
 
     const getHistory = async() => {
-        const response = await fetch(`${PROXY}/history`)
+        const response = await fetch(`history`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -219,11 +223,9 @@ export default function App() {
                 usadocpu: parseFloat(dataCPU.datasets[0].data[0].toFixed(2)),
                 disponiblecpu: parseFloat(dataCPU.datasets[0].data[1].toFixed(2)),
             }
-            await fetch(`${PROXY}/inscpuram`, {
+            await fetch(`inscpuram`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
             })
         }
@@ -243,7 +245,10 @@ export default function App() {
     const [dotCode, setDotCode] = useState('digraph G {}')
 
     const getPIDs = async () => {
-        var response = await fetch(`${PROXY}/pids`)
+        var response = await fetch(`pids`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -252,7 +257,10 @@ export default function App() {
     }
 
     const getProc = async (option) => {
-        var response = await fetch(`${PROXY}/proc/${option}`)
+        var response = await fetch(`proc/${option}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -320,7 +328,10 @@ export default function App() {
 
     // eslint-disable-next-line
     const getPIDCurrent = async () => {
-        const response = await fetch(`${PROXY}/thereisproc`)
+        const response = await fetch(`thereisproc`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
@@ -332,28 +343,40 @@ export default function App() {
     }
 
     const newProcess = async () => {
-        const response = await fetch(`${PROXY}/start`)
+        const response = await fetch(`start`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
     }
 
     const stopProcess = async () => {
-        const response = await fetch(`${PROXY}/stop/${pidCurrent}`)
+        const response = await fetch(`stop/${pidCurrent}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
     }
 
     const resumeProcess = async () => {
-        const response = await fetch(`${PROXY}/resume/${pidCurrent}`)
+        const response = await fetch(`resume/${pidCurrent}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
     }
 
     const killProcess = async () => {
-        const response = await fetch(`${PROXY}/kill/${pidCurrent}`)
+        const response = await fetch(`kill/${pidCurrent}`, {
+            method: "GET",
+            headers: { 'Content-Type': 'application/json' },
+        })
         if(!response.ok) {
             throw new Error('Network response was not ok');
         }
