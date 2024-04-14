@@ -1,1 +1,0 @@
-savedcmd_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/m.mod := printf '%s\n'   m.o | awk '!x[$$0]++ { print("/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/"$$0) }' > /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/m.mod
