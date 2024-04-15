@@ -1,1 +1,1 @@
-savedcmd_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/modules.order := {   echo /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/m.o; :; } > /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto/Module/modules.order
+savedcmd_/home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto1/Module/modules.order := {   echo /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto1/Module/m.o; :; } > /home/bryan/Documentos/USAC/Sopes1/1S2024/Repo/Proyecto1/Module/modules.order
