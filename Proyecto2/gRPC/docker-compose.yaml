@@ -11,13 +11,13 @@ services:
       MYSQL_DATABASE: P2SO1
     volumes:
       - ./schemas:/var/lib/mysql
-  grpc_client:
+  client:
     build:
       context: ./Client
     container_name: 'grpc-client'
     ports:
       - 3000:3000
-  grpc_server:
+  server:
     build:
       context: ./Server
     container_name: 'grpc-server'

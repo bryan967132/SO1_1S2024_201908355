@@ -5,7 +5,7 @@ docker stop $(docker ps -aqf "name=grpc-client")
 docker rm $(docker ps -aqf "name=grpc-server")
 docker rm $(docker ps -aqf "name=grpc-client")
 # eliminar imagen por nombre
-docker rmi proyecto2_grpc_client
-docker rmi proyecto2_grpc_server
+docker rmi grpc_client
+docker rmi grpc_server
 # levantar docker-compose
 docker-compose up -d
