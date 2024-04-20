@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+package music;
+
+option go_package = ".";
+
+service MusicService {
+    rpc SendMusicInfo (MusicRequest) returns (MusicResponse);
+}
+
+message MusicRequest {
+    string name = 1;
+    string album = 2;
+    string year = 3;
+    string rank = 4;
+}
+
+message MusicResponse {
+    string message = 1;
+}
