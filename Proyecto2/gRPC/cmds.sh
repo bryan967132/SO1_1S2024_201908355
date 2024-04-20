@@ -25,3 +25,17 @@ docker build -t dannyt8355/grpc_client .
 docker run -p 3000:3000 dannyt8355/grpc_client
 docker build -t dannyt8355/grpc_server .
 docker run -p 3001:3001 dannyt8355/grpc_server
+
+# detener todos los contenedores
+docker stop $(docker ps -aq)
+# eliminar todos los contenedores
+docker rm $(docker ps -aq)
+# eliminar todos los contenedores
+docker rmi $(docker images -aq)
+
+# detener contenedor por nombre
+docker stop $(docker ps -aqf "name=grpc-server")
+docker stop $(docker ps -aqf "name=grpc-client")
+# eliminar contenedor por nombre
+docker rm $(docker ps -aqf "name=grpc-server")
+docker rm $(docker ps -aqf "name=grpc-client")

@@ -51,7 +51,7 @@ func (s *Server) ReturnInfo(ctx context.Context, in *confproto.RequestId) (*conf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println(data)
-	query := "INSERT INTO votos (name, album, year, ranking) VALUES (?, ?, ?, ?)"
+	query := "INSERT INTO Banda (name, album, year, ranking) VALUES (?, ?, ?, ?)"
 	_, err := db.ExecContext(ctx, query, data.Name, data.Album, data.Year, data.Rank)
 	if err != nil {
 		log.Println("Error al insertar en MySQL:", err)
