@@ -1,0 +1,25 @@
+version: '3.1'
+services:
+  mysql:
+    image: mysql
+    container_name: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: mysqlpass
+      MYSQL_DATABASE: P2SO1
+    volumes:
+      - ./schemas:/var/lib/mysql
+  grpc_client:
+    build:
+      context: ./Client
+    container_name: 'grpc-client'
+    ports:
+      - 3000:3000
+  grpc_server:
+    build:
+      context: ./Server
+    container_name: 'grpc-server'
+    ports:
+      - 3001:3001
