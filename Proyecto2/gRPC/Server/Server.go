@@ -27,19 +27,12 @@ type Data struct {
 	Rank  string
 }
 
-func mysqlConnect() {
-	var err error
-	db, err = sql.Open("mysql", "root:mysqlpass@tcp(mysql:3306)/P2SO1")
-	if err != nil {
-		log.Fatalln(err)
-	}
+func (d Data) toString() string {
+	return fmt.Sprintf("Name: %v, Album: %v, Year: %v, Rank: %v", d.Name, d.Album, d.Year, d.Rank)
+}
 
-	err = db.Ping()
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	fmt.Println("Conexión a MySQL exitosa")
+func kafka(data string) error {
+	return nil
 }
 
 func (s *Server) ReturnInfo(ctx context.Context, in *confproto.RequestId) (*confproto.ReplyInfo, error) {
@@ -51,10 +44,9 @@ func (s *Server) ReturnInfo(ctx context.Context, in *confproto.RequestId) (*conf
 		Rank:  in.GetRank(),
 	}
 	fmt.Println(data)
-	query := "INSERT INTO Banda (name, album, year, ranking) VALUES (?, ?, ?, ?)"
-	_, err := db.ExecContext(ctx, query, data.Name, data.Album, data.Year, data.Rank)
+	err := kafka(data.toString())
 	if err != nil {
-		log.Println("Error al insertar en MySQL:", err)
+		log.Printf("Failed to produce message to Kafka: %s", err)
 	}
 	return &confproto.ReplyInfo{Info: "Hola cliente, recibí el comentario"}, nil
 }
@@ -65,7 +57,6 @@ func main() {
 		log.Fatalln(err)
 	}
 	s := grpc.NewServer()
-	mysqlConnect()
 	confproto.RegisterGetInfoServer(s, &Server{})
 	reflection.Register(s)
 
