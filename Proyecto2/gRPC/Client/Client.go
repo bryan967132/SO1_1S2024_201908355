@@ -38,7 +38,7 @@ func insertData(c *fiber.Ctx) error {
 }
 
 func sendServer(voto Data) {
-	conn, err := grpc.Dial("server:3001", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:3001", grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {
 		log.Fatalln(err)
 	}
