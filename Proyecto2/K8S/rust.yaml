@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rust-ruta
+  namespace: so1p2
+spec:
+  selector:
+    matchLabels:
+      role: rust-ruta
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        role: rust-ruta
+    spec:
+      containers:
+      - name: rust-client
+        image: dannyt8355/rust-client
+        ports:
+        - containerPort: 4000
+      - name: rust-server
+        image: dannyt8355/rust-server
+        ports:
+        - containerPort: 4001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-rust
+  namespace: so1p2
+spec:
+  type: LoadBalancer
+  ports:
+  - name: rust-client-port
+    port: 4000
+    targetPort: 4000
+    protocol: TCP
+  - name: rust-server-port
+    port: 4001
+    targetPort: 4001
+    protocol: TCP
+  selector:
+    role: rust-ruta
