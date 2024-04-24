@@ -13,8 +13,8 @@ struct Data {
     rank: String,
 }
 
-#[post("/send_data", data = "<data>")]
-async fn send_data(data: Json<Data>) -> String {
+#[post("/insert", data = "<data>")]
+async fn insert(data: Json<Data>) -> String {
     let client = Client::new();
     let server_url = "http://localhost:4001/data";
     let response = client.post(server_url).json(&data.into_inner()).send().await;
@@ -45,7 +45,7 @@ async fn main() {
     //----------------------------------------------------------------------------
     rocket::custom(config)
     .attach(cors)
-    .mount("/rust", rocket::routes![send_data])
+    .mount("/rust", rocket::routes![insert])
     .launch()
     .await
     .unwrap();
