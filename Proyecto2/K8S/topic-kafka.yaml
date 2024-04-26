@@ -1,8 +1,8 @@
 apiVersion: kafka.strimzi.io/v1beta2
 kind: KafkaTopic
 metadata:
-  name: topic-sopes1
-  namespace: kafka
+  namespace: so1p2
+  name: topic-so1p2
   labels:
     strimzi.io/cluster: my-cluster
 spec:

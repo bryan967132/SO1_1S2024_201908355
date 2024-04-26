@@ -1,0 +1,82 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: so1p2
+data:
+  prometheus.yaml: |-
+    {
+        "apiVersion": 1,
+        "datasources": [
+            {
+               "access":"proxy",
+                "editable": true,
+                "name": "redis",
+                "orgId": 1,
+                "password":"YOUR_PASSWORD",
+                "type": "redis",
+                "url": "redis://redis.so1p2.svc:6379",
+                "version": 1
+            }
+        ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: so1p2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:8.4.4
+        ports:
+        - name: grafana
+          containerPort: 3000
+        resources:
+#          limits:
+#            memory: "1Gi"
+#            cpu: "1000m"
+          requests:
+            memory: 200M
+            cpu: "200m"
+        volumeMounts:
+          - mountPath: /var/lib/grafana
+            name: grafana-storage
+          - mountPath: /etc/grafana/provisioning/datasources
+            name: grafana-datasources
+            readOnly: false
+      volumes:
+        - name: grafana-storage
+          emptyDir: {}
+        - name: grafana-datasources
+          configMap:
+              defaultMode: 420
+              name: grafana-datasources
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: grafana
+  name: grafana
+  namespace: so1p2
+spec:
+  ports:
+  - port: 3080
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    app: grafana
+  type: LoadBalancer

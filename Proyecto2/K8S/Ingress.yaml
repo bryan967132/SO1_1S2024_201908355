@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: my-ingress
-  namespace: kafka
+  namespace: so1p2
   annotations:
     nginx.ingress.kubernetes.io/target-type: ip
     nginx.org/listen-ports: '[80,3000,3001,4000,4001]'

@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: consumer-deployment
+  namespace: so1p2
+spec:
+  selector:
+    matchLabels:
+      role: consumer-deployment
+  replicas: 1
+  template: 
+    metadata:
+      labels:
+        role: consumer-deployment
+    spec:
+      containers:  
+      - name: consumer-container
+        image: dannyt8355/consumer:latest
+        ports:  
+        - containerPort: 3002  
+          protocol: TCP
