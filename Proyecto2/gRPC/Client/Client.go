@@ -8,6 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var ctx = context.Background()
@@ -38,7 +39,7 @@ func insertData(c *fiber.Ctx) error {
 }
 
 func sendServer(voto Data) {
-	conn, err := grpc.Dial("localhost:3001", grpc.WithInsecure(), grpc.WithBlock())
+	conn, err := grpc.Dial("localhost:3001", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -60,7 +61,7 @@ func sendServer(voto Data) {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(ret)
+	fmt.Println(ret.GetInfo())
 }
 
 func main() {

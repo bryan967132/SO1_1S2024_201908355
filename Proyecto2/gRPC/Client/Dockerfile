@@ -1,8 +1,9 @@
-FROM golang:1.22.2-alpine
+FROM golang:latest AS builder
 WORKDIR /app
-COPY go.mod go.sum ./
+COPY go.mod .
+COPY go.sum .
 RUN go mod download
 COPY . .
-RUN go build Client.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o app .
 EXPOSE 3000
-CMD ["./Client"]
+CMD ["./app"]
