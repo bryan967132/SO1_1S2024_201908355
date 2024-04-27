@@ -24,7 +24,7 @@ type Data struct {
 }
 
 func (d Data) toString() string {
-	return fmt.Sprintf("Name: %v, Album: %v, Year: %v, Rank: %v", d.Name, d.Album, d.Year, d.Rank)
+	return fmt.Sprintf(`{"Name": "%v", "Album": "%v", "Year": "%v", "Rank": "%v"}`, d.Name, d.Album, d.Year, d.Rank)
 }
 
 func producerkafka(data string) error {
