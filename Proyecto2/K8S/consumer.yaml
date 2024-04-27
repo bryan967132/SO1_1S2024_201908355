@@ -15,7 +15,21 @@ spec:
     spec:
       containers:  
       - name: consumer-container
-        image: dannyt8355/consumer:latest
+        image: dannyt8355/kafka-consumer:latest
         ports:  
         - containerPort: 3002  
           protocol: TCP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: so1p2
+  name: service-consumer
+spec:
+  ports:
+    - name: consumer-port
+      port: 3002
+      targetPort: 3002
+  selector:
+    name: consumer-deployment
+  type: NodePort

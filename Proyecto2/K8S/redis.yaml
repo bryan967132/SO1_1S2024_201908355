@@ -62,4 +62,4 @@ spec:
     targetPort: 6379
   selector:
     run: redis
-  type: ClusterIP
+  type: LoadBalancer

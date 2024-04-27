@@ -15,11 +15,11 @@ spec:
     spec:
       containers:
       - name: rust-client
-        image: dannyt8355/rust-client:latest
+        image: dannyt8355/rust-client:rust
         ports:
         - containerPort: 4000
       - name: rust-server
-        image: dannyt8355/rust-server:latest
+        image: dannyt8355/rust-server:rust
         ports:
         - containerPort: 4001
 ---

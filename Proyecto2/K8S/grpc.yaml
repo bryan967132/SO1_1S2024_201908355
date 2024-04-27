@@ -15,11 +15,11 @@ spec:
     spec:
       containers:
       - name: grpc-client
-        image: dannyt8355/grpc-client:p1
+        image: dannyt8355/grpc-client:grpc
         ports:
         - containerPort: 3000
       - name: grpc-server
-        image: dannyt8355/grpc-server:p1
+        image: dannyt8355/grpc-server:grpc
         ports:
         - containerPort: 3001
 ---
